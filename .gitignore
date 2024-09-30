@@ -1,0 +1,8 @@
+.env
+TODO
+__pycache__
+.venv
+*.bat
+*.html
+test*
+info
