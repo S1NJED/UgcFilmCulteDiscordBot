@@ -1,5 +1,7 @@
 Un bot discord qui notifie quand un film culte est disponible dans un ou plusieurs cinéma(s) de votre choix
 
+![example](image.png)
+
 # Setup
 
 - Installer python
@@ -28,6 +30,3 @@ dev: Utilise la dev_bdd.sqlite au lieu de bdd.sqlite
 - `make dev` - Pour lancer le script en en mode dev et synchronise 
 
 - `make dev-no-sync` - mode dev et no sync
-
-
-
