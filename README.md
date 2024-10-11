@@ -4,6 +4,7 @@ Un bot discord qui notifie quand un film culte est disponible dans un ou plusieu
 
 # Setup
 
+- Copie - colle et renomme `bdd.example.sqlite` -> `bdd.sqlite`
 - Installer python
 - Installe les librarires
     `pip install -r requirements.txt`
