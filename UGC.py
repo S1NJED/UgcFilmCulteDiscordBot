@@ -5,7 +5,8 @@ from discord.ext.commands import Bot
 import discord
 import asyncio 
 from random import randint
-from time import sleep
+from datetime import datetime
+import traceback
 
 class UgcRegions:
     def __init__(self):
@@ -108,9 +109,16 @@ class UgcScrapper(UgcRegions):
 
         req = self.session.get(url)
         soup = BeautifulSoup(req.text, "html.parser")
-        year,month,day = soup.select_one("div[data-index]").attrs.get("id").removeprefix("nav_date__", "").split('-') # YYYY-MM-DD
-        
-        seanceDate = f"{DAYS[int(day)]} {MONTHS[int(month)]} {year}"
+      
+        try:
+            print(soup.select_one("div[data-index]").attrs.get("id"))
+            date = soup.select_one("div[data-index]").attrs.get("id").removeprefix("nav_date__") # YYYY-MM-DD
+            weekDay = datetime.strptime(date, "%Y-%m-%d").weekday()
+            year, month, day = date.split('-')
+            seanceDate = f"{DAYS[int(weekDay)]} {day} {MONTHS[int(month)-1]} {year}"
+        except Exception as err:
+            traceback.print_exc()
+            seanceDate = "Impossible d'avoir la date"
 
         return seanceDate
 
@@ -135,7 +143,7 @@ class UgcScrapper(UgcRegions):
             notify_channel = cursor.fetchone()
 
             if not notify_channel:
-                sleep(5)
+                await asyncio.sleep(5)
                 continue
 
             cursor.execute("SELECT * FROM cinemas")
@@ -146,16 +154,16 @@ class UgcScrapper(UgcRegions):
                 # We check if the movies are already in the database if not we send
 
                 for movie in movies: # name, url, poster
-
+                    
                     cursor.execute("SELECT * FROM movies WHERE cinema_id = ? AND title = ?", (id, movie['name']))
                     movieInDb = cursor.fetchone() # id, name
 
                     # We notify
                     if not movieInDb:
-                        cursor.execute("SELECT channel_id FROM notify_channel")
-                        notify_channel_id = cursor.fetchone()
+                        cursor.execute("SELECT channel_id, message FROM notify_channel")
+                        notify_channel_id, message = cursor.fetchone()
                         
-                        notify_channel_id = int(notify_channel_id[0])
+                        notify_channel_id = int(notify_channel_id)
                         notify_channel: discord.TextChannel = self.bot.get_channel(notify_channel_id)
 
                         embed = discord.Embed(
@@ -168,7 +176,7 @@ class UgcScrapper(UgcRegions):
                         r,g,b = calcul_avg_color(movie['poster'])
                         embed.color = discord.Color.from_rgb(r,g,b)
 
-                        await notify_channel.send(embed=embed) # TODO je reprends demain sah g la flemme de bz la 
+                        await notify_channel.send(content=message, embed=embed) # TODO je reprends demain sah g la flemme de bz la 
 
                         # await send ..
                         cursor.execute("INSERT INTO movies VALUES(?, ?)", (id, movie['name']))

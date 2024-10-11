@@ -22,16 +22,17 @@ class Setup(Cog):
 
         async with asqlite.connect(os.getenv("DB_NAME")) as conn:
             async with conn.cursor() as cursor:
-                content = []
+                channelMsg = None
+                messageMsg = None
 
                 if channel:
-                    content.append(f"Le channel a bien été modifié (<#{channel.id}>)")
+                    channelMsg = f"Le channel a bien été modifié (<#{channel.id}>)"
                     await cursor.execute("UPDATE notify_channel SET channel_id = ? WHERE id = 1", (channel.id,))
                 if message:
-                    content.append(f"Le message a bien été modifié:\n> {message}")
+                    messageMsg = f"Le message a bien été modifié:\n> {message}"
                     await cursor.execute("UPDATE notify_channel SET message = ? WHERE id = 1", (message,))
 
-                await interaction.response.send_message(content, ephemeral=True)
+                await interaction.response.send_message(f"{channelMsg if channelMsg else ''} {f"\n\n{messageMsg}" if messageMsg else ''}", ephemeral=True)
 
                 await conn.commit()
 

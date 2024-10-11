@@ -10,7 +10,8 @@ import dotenv
 
 class Bot(commands.Bot):
 
-    def __init__(self):
+    def __init__(self, no_sync: bool):
+        self.no_sync = no_sync
         intents = discord.Intents.default()
         intents.message_content = True
 
@@ -38,8 +39,9 @@ class Bot(commands.Bot):
         except Exception as err:
             raise err
         
-        await self.tree.sync()
-        print("Sucessfully synced") 
+        if not self.no_sync:
+            await self.tree.sync()
+            print("Sucessfully synced") 
 
 
 
@@ -85,7 +87,10 @@ class Bot(commands.Bot):
 
 def main():
     parser = argparse.ArgumentParser()
+    
     parser.add_argument("--dev", action="store_true", help="dev env")
+    parser.add_argument("--no-sync", action="store_true", help="to not sync")
+
     args = parser.parse_args()
     dev = args.dev
 
@@ -96,7 +101,7 @@ def main():
     if not TOKEN:
         raise ValueError("No token provided, add it in the .env file")
     
-    bot = Bot()
+    bot = Bot(no_sync=args.no_sync)
     bot.run(token=TOKEN)
 
 if __name__ == '__main__':
