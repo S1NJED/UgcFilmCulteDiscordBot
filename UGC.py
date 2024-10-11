@@ -95,8 +95,8 @@ class UgcScrapper(UgcRegions):
         
         return movies
 
-    # J'en déduit que y'a qu'une séance le mm jour pour tt les ciné
-    def getMovieSeance(self, movieId):
+    # Il peut y en avoir plusieurs
+    def getMovieSeances(self, movieId):
         url = f"https://www.ugc.fr/showingsFilmAjaxAction!getDaysByFilm.action?filmId={movieId}"
         """
         filmId=15772
@@ -111,14 +111,17 @@ class UgcScrapper(UgcRegions):
         soup = BeautifulSoup(req.text, "html.parser")
       
         try:
-            print(soup.select_one("div[data-index]").attrs.get("id"))
-            date = soup.select_one("div[data-index]").attrs.get("id").removeprefix("nav_date__") # YYYY-MM-DD
-            weekDay = datetime.strptime(date, "%Y-%m-%d").weekday()
-            year, month, day = date.split('-')
-            seanceDate = f"{DAYS[int(weekDay)]} {day} {MONTHS[int(month)-1]} {year}"
+            dates = soup.select("div[data-index]").attrs.get("id").removeprefix("nav_date__") # YYYY-MM-DD
+            
+            seanceDate = []
+            for date in dates:
+                weekDay = datetime.strptime(date, "%Y-%m-%d").weekday()
+                year, month, day = date.split('-')
+                seanceDate.append( f":calendar_spiral: {DAYS[int(weekDay)]} {day} {MONTHS[int(month)-1]} {year}" )
+
         except Exception as err:
             traceback.print_exc()
-            seanceDate = "Impossible d'avoir la date"
+            seanceDate = [":calendar_spiral: Impossible d'avoir la date"]
 
         return seanceDate
 
@@ -168,7 +171,7 @@ class UgcScrapper(UgcRegions):
 
                         embed = discord.Embed(
                             title="🎥 Nouveau film culte",
-                            description=f"# [{movie['name']}]({movie['url']})\n**📌 {cinema_name}**\n:calendar_spiral: {self.getMovieSeance(movie['id'])}"
+                            description=f"# [{movie['name']}]({movie['url']})\n**📌 {cinema_name}**\n\n{'\n'.join(self.getMovieSeance(movie['id']))}"
                         )
                         
                         embed.set_thumbnail(url=movie['poster'])

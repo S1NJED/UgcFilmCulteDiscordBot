@@ -8,4 +8,5 @@ test*
 info
 dev_bdd.sqlite
 *shm
+bdd.sqlite
 *wal
