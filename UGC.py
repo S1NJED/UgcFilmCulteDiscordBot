@@ -111,7 +111,7 @@ class UgcScrapper(UgcRegions):
         soup = BeautifulSoup(req.text, "html.parser")
       
         try:
-            dates = soup.select("div[data-index]").attrs.get("id").removeprefix("nav_date__") # YYYY-MM-DD
+            dates = [date.attrs.get("id").removeprefix("nav_date__") for date in soup.select("div[data-index]")] # YYYY-MM-DD
             
             seanceDate = []
             for date in dates:
