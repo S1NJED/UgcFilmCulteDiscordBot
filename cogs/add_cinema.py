@@ -4,6 +4,7 @@ from UGC import UgcRegions, UgcScrapper
 import discord
 from utils import connDb
 import asqlite
+import os
 
 class CinemaSelect(discord.ui.Select):
 
@@ -21,7 +22,7 @@ class CinemaSelect(discord.ui.Select):
         # TODO: We then add the cinema to the database so it can be watch by the worker 
         _, cinema_id, cinema_name = interaction.data['values'][0].split('_')
         
-        async with asqlite.connect("bdd.sqlite") as conn:
+        async with asqlite.connect(os.getenv("DB_NAME")) as conn:
             await conn.execute("INSERT INTO cinemas(id, name) VALUES(?, ?)", (cinema_id, cinema_name) )
             await conn.commit()
             
@@ -52,7 +53,6 @@ class AddCinema(Cog):
 
     def __init__(self, bot: Bot):
         self.bot = bot
-        
 
     '''
     region -> cinema
@@ -60,6 +60,7 @@ class AddCinema(Cog):
     2. Choisir un cinéma
     '''
     @app_commands.command(name="add_cinema", description="Ajouter un cinéma a surveiller")
+    @app_commands.checks.has_permissions(administrator=True)
     async def add_cinema(self, interaction: Interaction):
 
         view = discord.ui.View()

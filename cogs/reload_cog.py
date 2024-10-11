@@ -9,6 +9,7 @@ class ReloadCog(Cog):
         self.bot = bot
 
     @app_commands.command(name="reload")
+    @app_commands.checks.has_permissions(administrator=True)
     async def reload_cog(self, interaction: Interaction):
         try:
             cogsFolder = os.listdir("cogs")
@@ -30,7 +31,7 @@ class ReloadCog(Cog):
             raise err
 
         # Sync the app commands (slash commands)
-        await self.bot.tree.sync()
+        # await self.bot.tree.sync()
         await interaction.response.send_message("Reloaded all cogs successfully!")
 
 async def setup(bot: Bot):

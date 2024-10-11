@@ -1,10 +1,12 @@
 import discord
 import os
-from dotenv import load_dotenv
 from discord.ext import commands
 import asyncio
-import asqlite
 from UGC import UgcScrapper
+import argparse
+import os
+import dotenv
+
 
 class Bot(commands.Bot):
 
@@ -14,13 +16,7 @@ class Bot(commands.Bot):
 
         self.ugc = UgcScrapper(bot=self)
         
-        super().__init__(command_prefix="?", intents=intents)
-
-    @commands.command()
-    async def deco(self, ctx):
-        self.ugc.workerLoopState = False
-
-        await ctx.send("bot disconnect success tqt 🔥🔥🔥")
+        super().__init__(command_prefix="??", intents=intents)
     
     # execute before the bot start
     async def setup_hook(self):
@@ -42,8 +38,9 @@ class Bot(commands.Bot):
         except Exception as err:
             raise err
         
-        # await self.tree.sync(guild=self.get_guild(664447628687310878))
-        # print("Sucessfully synced") 
+        await self.tree.sync()
+        print("Sucessfully synced") 
+
 
 
     async def on_ready(self):
@@ -56,7 +53,6 @@ class Bot(commands.Bot):
         print("UGC worker started")
     
     async def on_message(self, message: discord.Message):
-        
         
         if message.content.startswith(self.command_prefix):
 
@@ -79,19 +75,26 @@ class Bot(commands.Bot):
                         print(file, err)
                 
 
-                await message.channel.send("g bien reload mon gars tqt")
+                await message.channel.send("reloaded cogs")
             
             elif message.content.startswith("?sync"):
 
                 await self.tree.sync()
-                
+
+         
 
 def main():
-    load_dotenv()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dev", action="store_true", help="dev env")
+    args = parser.parse_args()
+    dev = args.dev
+
+    dotenv.load_dotenv(".env.production" if dev else ".env")
+
     TOKEN = os.getenv("BOT_TOKEN")
     
     if not TOKEN:
-        raise ValueError("No token")
+        raise ValueError("No token provided, add it in the .env file")
     
     bot = Bot()
     bot.run(token=TOKEN)

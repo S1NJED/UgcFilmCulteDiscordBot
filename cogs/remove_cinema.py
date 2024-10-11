@@ -4,6 +4,7 @@ import discord
 from utils import connDb
 import asqlite
 from discord.ext.commands import Cog, Bot
+import os
 
 class RemoveCinema(Cog):
 
@@ -14,9 +15,10 @@ class RemoveCinema(Cog):
 
     @app_commands.command(name="remove_cinema", description="Supprime un cinéma de la liste")
     @app_commands.describe(cinema="Entrez le nom du cinéma")
+    @app_commands.checks.has_permissions(administrator=True)
     async def remove_cinema(self, interaction: Interaction, cinema: str):
         
-        async with asqlite.connect("bdd.sqlite") as conn:
+        async with asqlite.connect(os.getenv("DB_NAME")) as conn:
             async with conn.cursor() as cursor:
                 await cursor.execute("DELETE FROM cinemas WHERE name = ?", (cinema,))
 
@@ -26,7 +28,7 @@ class RemoveCinema(Cog):
     async def remove_cinema_autocomplete_cinema(self, interaction: Interaction, current: str):
         current = current.lower()
 
-        async with asqlite.connect("bdd.sqlite") as conn:
+        async with asqlite.connect(os.getenv("DB_NAME")) as conn:
             async with conn.cursor() as cursor:
                 await cursor.execute("SELECT name FROM cinemas")
                 data = await cursor.fetchall() # [sqlte3(name)]

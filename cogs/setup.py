@@ -5,6 +5,7 @@ from utils import connDb
 import asqlite
 from discord.ext.commands import Cog, Bot
 from typing import Literal
+import os
 
 class Setup(Cog):
 
@@ -14,11 +15,12 @@ class Setup(Cog):
     @app_commands.command(name="setup", description="Setup le channel notif et le message")
     @app_commands.describe(channel="Le channel où les notifs seront envoyés")
     @app_commands.describe(message="Un éventuel message qui sera envoyé en plus de l'embed")
+    @app_commands.checks.has_permissions(administrator=True)
     async def setup(self, interaction: Interaction, channel: discord.TextChannel = None, message: str = None):
         if not channel and not message:
             return await interaction.response.send_message("spécifie un channel et/ou un message qui sera envoyé lorsqu'un film culte sera dispo dans un cinéma choisis", ephemeral=True)
 
-        async with asqlite.connect("bdd.sqlite") as conn:
+        async with asqlite.connect(os.getenv("DB_NAME")) as conn:
             async with conn.cursor() as cursor:
                 content = []
 

@@ -1,10 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
-from utils import connDb, calcul_avg_color
+from utils import connDb, calcul_avg_color, MONTHS, DAYS
 from discord.ext.commands import Bot
 import discord
 import asyncio 
 from random import randint
+from time import sleep
 
 class UgcRegions:
     def __init__(self):
@@ -81,8 +82,10 @@ class UgcScrapper(UgcRegions):
 
         for movie in scrapped_movies:
             path = "div > div:nth-of-type(2) > div > a"
+
             obj = {
                 "name": movie.select_one(path).text,
+                "id": movie.select_one(path).attrs.get("id").split('_')[1],
                 "url": "https://www.ugc.fr/" + movie.select_one(path).attrs.get("href"),
                 "poster": movie.select_one("div > div:nth-of-type(1) > div > a > img").attrs.get("data-src")
             }
@@ -91,11 +94,10 @@ class UgcScrapper(UgcRegions):
         
         return movies
 
-    # TODO: plus tard sah j'ia la flemme
-    def getSeanceMovieFromCinema(self, movieName, cinemaId):
-        url = "https://www.ugc.fr/showingsFilmAjaxAction!getShowingsByFilm.action"
+    # J'en déduit que y'a qu'une séance le mm jour pour tt les ciné
+    def getMovieSeance(self, movieId):
+        url = f"https://www.ugc.fr/showingsFilmAjaxAction!getDaysByFilm.action?filmId={movieId}"
         """
-        
         filmId=15772
         day=2024-09-22
         regionId=3000
@@ -103,12 +105,14 @@ class UgcScrapper(UgcRegions):
 
         __multiselect_versions=
         """
-        data = {
-            ""
-        }
 
-        req = self.session.post(url, data="")
-        print(req)
+        req = self.session.get(url)
+        soup = BeautifulSoup(req.text, "html.parser")
+        year,month,day = soup.select_one("div[data-index]").attrs.get("id").removeprefix("nav_date__", "").split('-') # YYYY-MM-DD
+        
+        seanceDate = f"{DAYS[int(day)]} {MONTHS[int(month)]} {year}"
+
+        return seanceDate
 
     # must be executed in a different thread
     """
@@ -123,9 +127,17 @@ class UgcScrapper(UgcRegions):
             raise Exception("bot instance is missing")
         
         while self.workerLoopState:
-
+            
             conn = connDb()
             cursor = conn.cursor()
+
+            cursor.execute("SELECT * FROM cinemas")
+            notify_channel = cursor.fetchone()
+
+            if not notify_channel:
+                sleep(5)
+                continue
+
             cursor.execute("SELECT * FROM cinemas")
             cinemas_ids = cursor.fetchall() # (id, name)
 
@@ -142,17 +154,13 @@ class UgcScrapper(UgcRegions):
                     if not movieInDb:
                         cursor.execute("SELECT channel_id FROM notify_channel")
                         notify_channel_id = cursor.fetchone()
-
-                        if not notify_channel_id:
-                            conn.close()
-                            return
                         
                         notify_channel_id = int(notify_channel_id[0])
                         notify_channel: discord.TextChannel = self.bot.get_channel(notify_channel_id)
 
                         embed = discord.Embed(
                             title="🎥 Nouveau film culte",
-                            description=f"# [{movie['name']}]({movie['url']})\n**📌 {cinema_name}**"
+                            description=f"# [{movie['name']}]({movie['url']})\n**📌 {cinema_name}**\n:calendar_spiral: {self.getMovieSeance(movie['id'])}"
                         )
                         
                         embed.set_thumbnail(url=movie['poster'])

@@ -2,21 +2,10 @@ import sqlite3
 import requests
 from PIL import Image
 from io import BytesIO
-import argparse
-
-parser = argparse.ArgumentParser()
-parser.add_argument("dev", action="store_true", required=False, help="dev env")
-args = parser.parse_args()
-
-DEV_ENV = args.dev
-DATABASE_NAME = "bdd.sqlite"
-
-if DEV_ENV:
-    print("Development environment enabled")
-    DATABASE_NAME = "dev_bdd.sqlite"
+import os
 
 def connDb():
-    return sqlite3.connect(DATABASE_NAME)
+    return sqlite3.connect(os.getenv("DB_NAME"))
 
 # merci chat gpt mdr 
 def calcul_avg_color(imageUrl):
@@ -45,5 +34,29 @@ def calcul_avg_color(imageUrl):
     average_green = total_green // pixel_count
     average_blue = total_blue // pixel_count
 
-
     return (average_red, average_green, average_blue)
+
+MONTHS = [
+    "Janvier",
+    "Février",
+    "Mars",
+    "Avril",
+    "Mai",
+    "Juin",
+    "Juillet",
+    "Aout",
+    "Septembre",
+    "Octobre",
+    "Novembre",
+    "Décembre",
+]
+
+DAYS = [
+    "Lundi",
+    "Mardi",
+    "Mercredi",
+    "Jeudi",
+    "Vendredi",
+    "Samedi",
+    "Dimanche",
+]
