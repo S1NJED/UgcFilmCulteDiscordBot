@@ -6,6 +6,7 @@ from UGC import UgcScrapper
 import argparse
 import os
 import dotenv
+import shutil
 
 
 class Bot(commands.Bot):
@@ -68,10 +69,10 @@ def main():
     
     if not TOKEN:
         raise ValueError("No token provided, add it in the .env file")
-    
-    # TODO: faire un setup qui créer la db automatiquement 
-    if not os.listdir("bdd.sqlite"):
-        raise FileNotFoundError("Avant d'éxécuter le bot tu doit faire une copie de bdd.example.sqlite et la renommer bdd.sqlite")
+
+    if not os.path.exists("bdd.sqlite"):
+        print("bdd.sqlite not exist, creating new one")
+        shutil.copyfile("bdd.example.sqlite", "bdd.sqlite")
     
     bot = Bot(no_sync=args.no_sync)
     bot.run(token=TOKEN)
