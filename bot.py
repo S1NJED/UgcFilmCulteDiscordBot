@@ -54,36 +54,6 @@ class Bot(commands.Bot):
         asyncio.create_task(self.ugc.worker())
         print("UGC worker started")
     
-    async def on_message(self, message: discord.Message):
-        
-        if message.content.startswith(self.command_prefix):
-
-            if message.content.startswith("?deco"):
-                self.ugc.workerLoopState = False
-
-                await message.channel.send("bot off")
-                await self.close()
-            
-            elif message.content.startswith("?reload"):
-                cogsFolder = os.listdir("cogs")
-
-                for file in cogsFolder:
-                    try:
-                        if file.endswith(".py"):
-                            file = file.removesuffix('.py')
-                            await self.reload_extension(f"cogs.{file}")
-                            print(f"Reloading cogs.{file}")
-                    except Exception as err:
-                        print(file, err)
-                
-
-                await message.channel.send("reloaded cogs")
-            
-            elif message.content.startswith("?sync"):
-
-                await self.tree.sync()
-
-         
 
 def main():
     parser = argparse.ArgumentParser()
