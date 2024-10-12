@@ -96,23 +96,42 @@ class UgcScrapper(UgcRegions):
         return movies
 
     # Il peut y en avoir plusieurs
-    def getMovieSeances(self, movieId):
-        url = f"https://www.ugc.fr/showingsFilmAjaxAction!getDaysByFilm.action?filmId={movieId}"
+    # currentTempCinemaId	"43" -- COokies
+    #
+    # https://www.ugc.fr/showingsFilmAjaxAction!getDaysByFilm.action
+    # 
+    '''
+    https://www.ugc.fr/showingsFilmAjaxAction!getShowingsByFilm.action?filmId=13414&day=2024-11-02&regionId=3000&defaultRegionId=1&
+    '''
+    def getMovieSeances(self, movieId, cinemaId):
+        url = f"https://www.ugc.fr/showingsFilmAjaxAction!getDaysByFilm.action?filmId={movieId}&regionId=3000"
         """
         filmId=15772
-        day=2024-09-22
         regionId=3000
         defaultRegionId=1
 
         __multiselect_versions=
         """
 
-        req = self.session.get(url)
+        self.session.cookies['currentTempCinemaId'] = cinemaId
+
+        req = self.session.post(url, data="", headers={
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+        })
+
+        print(req)
+
+        self.session.cookies['currentTempCinemaId'] = None
+
         soup = BeautifulSoup(req.text, "html.parser")
-      
+
+        with open('./index.html', 'w') as file:
+            file.write(req.text)
+
         try:
-            dates = [date.attrs.get("id").removeprefix("nav_date__") for date in soup.select("div[data-index]")] # YYYY-MM-DD
-            
+            dates = [date.attrs.get("id").removeprefix("nav_date_3000_") for date in soup.select("div[data-index]")] # YYYY-MM-DD
+            print(dates)
+
             seanceDate = []
             for date in dates:
                 weekDay = datetime.strptime(date, "%Y-%m-%d").weekday()
@@ -198,9 +217,6 @@ if __name__ == '__main__':
 
     scrapper = UgcScrapper()
     
-    movies = scrapper.getCultMoviesFromCinema("43")
-    
-    for movie in movies:
-        print(movie)
-
+    seances = scrapper.getMovieSeances(movieId="16252", cinemaId="7")
+    print(seances)
 
