@@ -1,4 +1,5 @@
 import requests
+import sqlite3
 from bs4 import BeautifulSoup
 from utils import connDb, calcul_avg_color, MONTHS, DAYS
 from discord.ext.commands import Bot
@@ -172,6 +173,7 @@ class UgcScrapper(UgcRegions):
             cinemas_ids = cursor.fetchall() # (id, name)
 
             for id, cinema_name in cinemas_ids:
+                print(id, cinema_name)
                 movies = self.getCultMoviesFromCinema(id)
                 # We check if the movies are already in the database if not we send
 
@@ -190,7 +192,7 @@ class UgcScrapper(UgcRegions):
 
                         embed = discord.Embed(
                             title="🎥 Nouveau film culte",
-                            description=f"# [{movie['name']}]({movie['url']}?cinemaId={id})\n**📌 {cinema_name}**\n\n{'\n'.join(self.getMovieSeances(movie['id'], id))}"
+                            description=f"# [{movie['name']}]({movie['url']}?cinemaId={id})\n**📌 {cinema_name}**\n\n{'\n'.join(self.getMovieSeances(movie['id'], str(id)))}"
                         )
                         
                         embed.set_thumbnail(url=movie['poster'])
@@ -211,12 +213,4 @@ class UgcScrapper(UgcRegions):
             conn.close()
 
             await asyncio.sleep(randint(20*60, 45*60)) # check every 20 minutes et 45 minutes
-
-
-if __name__ == '__main__':
-
-    scrapper = UgcScrapper()
-    
-    seances = scrapper.getMovieSeances(movieId="16252", cinemaId="7")
-    print(seances)
 
