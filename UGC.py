@@ -190,7 +190,7 @@ class UgcScrapper(UgcRegions):
 
                         embed = discord.Embed(
                             title="🎥 Nouveau film culte",
-                            description=f"# [{movie['name']}]({movie['url']})\n**📌 {cinema_name}**\n\n{'\n'.join(self.getMovieSeances(movie['id']))}"
+                            description=f"# [{movie['name']}]({movie['url']}?cinemaId={id})\n**📌 {cinema_name}**\n\n{'\n'.join(self.getMovieSeances(movie['id'], id))}"
                         )
                         
                         embed.set_thumbnail(url=movie['poster'])
