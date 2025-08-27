@@ -86,7 +86,7 @@ class UgcScrapper(UgcRegions):
             path = "div > div:nth-of-type(2) > div > a"
 
             obj = {
-                "name": movie.select_one(path).text,
+                "name": movie.select_one(path).text.strip(),
                 "id": movie.select_one(path).attrs.get("id").split('_')[1],
                 "url": "https://www.ugc.fr/" + movie.select_one(path).attrs.get("href"),
                 "poster": movie.select_one("div > div:nth-of-type(1) > div > a > img").attrs.get("data-src")
@@ -173,7 +173,12 @@ class UgcScrapper(UgcRegions):
             cinemas_ids = cursor.fetchall() # (id, name)
 
             for id, cinema_name in cinemas_ids:
+<<<<<<< Updated upstream
                 print(id, cinema_name)
+=======
+                print(id,  cinema_name)
+
+>>>>>>> Stashed changes
                 movies = self.getCultMoviesFromCinema(id)
                 # We check if the movies are already in the database if not we send
 
