@@ -8,8 +8,9 @@ import os
 
 class CinemaSelect(discord.ui.Select):
 
-    def __init__(self, regionId):
+    def __init__(self, regionId, user_id: int):
         self.regionId = regionId
+        self.user_id = user_id
         super().__init__(placeholder="📌 Choisis un cinéma")
 
         scrapper = UgcScrapper()
@@ -19,7 +20,7 @@ class CinemaSelect(discord.ui.Select):
             self.add_option(label=cinema['name'], value=f"cinema_{cinema['id']}_{cinema['name']}")
 
     async def callback(self, interaction: Interaction):
-        # TODO: We then add the cinema to the database so it can be watch by the worker 
+        if interaction.user.id != self.user_id: return
         _, cinema_id, cinema_name = interaction.data['values'][0].split('_')
         
         async with asqlite.connect(os.getenv("DB_NAME")) as conn:
@@ -31,20 +32,21 @@ class CinemaSelect(discord.ui.Select):
 
 class RegionSelect(discord.ui.Select):
 
-    def __init__(self):
+    def __init__(self, user_id: int):
         super().__init__(placeholder="🌍 Choisis une région")
-        
+        self.user_id = user_id
         regions = vars(UgcRegions())
         for region, id in regions.items():
             self.add_option(label=region, value=f"region_{id}")
 
     async def callback(self, interaction: Interaction):
+        if interaction.user.id != self.user_id: return
         callback_data = interaction.data['values'][0]
         
         if callback_data.startswith("region_"):
             # We send the CinemaSelect
             view = discord.ui.View()
-            view.add_item(CinemaSelect(regionId=callback_data.split('_')[1]))
+            view.add_item(CinemaSelect(regionId=callback_data.split('_')[1], user_id=self.user_id))
             
             await interaction.message.edit(view=view)
             await interaction.response.defer()
@@ -65,7 +67,7 @@ class AddCinema(Cog):
 
         view = discord.ui.View()
         view.add_item(RegionSelect())
-
+        
         await interaction.response.send_message(view=view)
 
 async def setup(bot: Bot):
