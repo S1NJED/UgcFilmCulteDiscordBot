@@ -12,7 +12,7 @@ class ReloadCog(Cog):
     @app_commands.checks.has_permissions(administrator=True)
     async def reload_cog(self, interaction: Interaction):
         try:
-            cogsFolder = os.listdir("cogs")
+            cogsFolder = os.listdir("src/cogs")
 
             for file in cogsFolder:
                 if file.endswith(".py"):
