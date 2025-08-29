@@ -23,7 +23,7 @@ class Bot(commands.Bot):
     # execute before the bot start
     async def setup_hook(self):
         try:
-            cogsFolder = os.listdir("cogs")
+            cogsFolder = os.listdir("src/cogs")
 
             for file in cogsFolder:
                 try:
