@@ -1,6 +1,6 @@
 Un bot discord qui notifie quand un film culte est disponible dans un ou plusieurs cinéma(s) de votre choix
 
-![Screen example](image.png)
+![Screen example](images/image.png)
 
 # Setup
 
