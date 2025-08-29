@@ -40,10 +40,6 @@ class Bot(commands.Bot):
         except Exception as err:
             raise err
         
-        if not self.no_sync:
-            await self.tree.sync()
-            print("Sucessfully synced") 
-
     async def on_ready(self):
 
         await self.change_presence(status=discord.Status.idle)

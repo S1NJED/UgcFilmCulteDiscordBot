@@ -7,10 +7,7 @@ else
 endif
 
 dev:
-	python bot.py --dev
-
-dev-no-sync:
-	python bot.py --dev --no-sync
+	python src/bot.py --dev
 
 run:
-	python bot.py
+	python src/bot.py
