@@ -66,7 +66,7 @@ class AddCinema(Cog):
     async def add_cinema(self, interaction: Interaction):
 
         view = discord.ui.View()
-        view.add_item(RegionSelect())
+        view.add_item(RegionSelect(interaction.user.id))
         
         await interaction.response.send_message(view=view)
 
