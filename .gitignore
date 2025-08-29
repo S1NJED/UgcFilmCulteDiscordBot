@@ -1,12 +1,6 @@
-.env.production
-TODO
+.env
 __pycache__
 .venv
-*.bat
-*.html
-test*
-info
-dev_bdd.sqlite
+*.sqlite
 *shm
-bdd.sqlite
 *wal
