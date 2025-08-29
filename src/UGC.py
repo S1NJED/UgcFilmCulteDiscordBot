@@ -173,12 +173,7 @@ class UgcScrapper(UgcRegions):
             cinemas_ids = cursor.fetchall() # (id, name)
 
             for id, cinema_name in cinemas_ids:
-<<<<<<< Updated upstream
-                print(id, cinema_name)
-=======
                 print(id,  cinema_name)
-
->>>>>>> Stashed changes
                 movies = self.getCultMoviesFromCinema(id)
                 # We check if the movies are already in the database if not we send
 
